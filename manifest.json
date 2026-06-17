@@ -3,8 +3,8 @@
   "short_name": "연습로그",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#111111",
+  "background_color": "#F7F4EF",
+  "theme_color": "#F7F4EF",
   "icons": [
     {
       "src": "icon-192.png",
