@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111111" />
+  <title>악기 연습 로그</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="app-header">
+      <h1 id="pageTitle">연습 리스트</h1>
+      <p id="pageDesc">진행 예정 연습과 완료된 연습을 관리해요.</p>
+    </header>
+
+    <section id="pageList" class="page active">
+      <div class="segmented">
+        <button id="todoTab" type="button" class="active">진행 예정</button>
+        <button id="doneTab" type="button">완료</button>
+      </div>
+
+      <div class="filter-card">
+        <label for="categoryFilter">카테고리</label>
+        <select id="categoryFilter"></select>
+      </div>
+
+      <div id="practiceList" class="card-list"></div>
+    </section>
+
+    <section id="pageAdd" class="page">
+      <div class="panel">
+        <h2 id="practiceFormTitle">연습 신규 등록</h2>
+        <input type="hidden" id="editingPracticeId" />
+
+        <label for="practiceCategory">카테고리</label>
+        <select id="practiceCategory"></select>
+        <button id="goCategoryFromAdd" type="button" class="text-button">+ 카테고리 추가/관리</button>
+
+        <label for="practiceTitle">연습 제목</label>
+        <input id="practiceTitle" type="text" maxlength="100" placeholder="예: 3악장 빠른패시지 연습" />
+
+        <label for="practiceGoal">연습 목표</label>
+        <textarea id="practiceGoal" maxlength="1000" placeholder="예: 템포 100까지 안정적으로 올리기"></textarea>
+
+        <button id="savePracticeBtn" type="button" class="primary">등록</button>
+        <button id="cancelPracticeEditBtn" type="button" class="secondary hidden">취소</button>
+      </div>
+    </section>
+
+    <section id="pageSettings" class="page">
+      <div class="settings-menu">
+        <button id="openCategoryPanel" type="button" class="menu-card">
+          <strong>연습 카테고리 관리</strong>
+          <span>카테고리 등록 · 수정 · 삭제</span>
+        </button>
+        <button id="openStatsPanel" type="button" class="menu-card">
+          <strong>통계</strong>
+          <span>누적 연습 시간 · 카테고리별 현황</span>
+        </button>
+      </div>
+
+      <section id="categoryPanel" class="panel hidden">
+        <h2>카테고리 관리</h2>
+        <input type="hidden" id="editingCategoryId" />
+
+        <label for="categoryName">카테고리명</label>
+        <input id="categoryName" type="text" maxlength="50" placeholder="예: 차이코프스키 5번" />
+
+        <label for="categoryColor">색상</label>
+        <select id="categoryColor">
+          <option value="#5B7CFA">파랑</option>
+          <option value="#2F9E44">초록</option>
+          <option value="#F08C00">주황</option>
+          <option value="#D6336C">분홍</option>
+          <option value="#6741D9">보라</option>
+        </select>
+
+        <button id="saveCategoryBtn" type="button" class="primary">카테고리 등록</button>
+        <button id="cancelCategoryEditBtn" type="button" class="secondary hidden">취소</button>
+
+        <div id="categoryList" class="category-list"></div>
+      </section>
+
+      <section id="statsPanel" class="panel hidden">
+        <h2>통계</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span>누적 연습 시간</span>
+            <strong id="totalMinutes">0분</strong>
+          </div>
+          <div class="stat-card">
+            <span>최근 30일 연습 시간</span>
+            <strong id="last30Minutes">0분</strong>
+          </div>
+          <div class="stat-card">
+            <span>최근 일주일 연습 시간</span>
+            <strong id="last7Minutes">0분</strong>
+          </div>
+        </div>
+
+        <h3>카테고리별 누적 연습 시간</h3>
+        <div id="categoryStats" class="category-stats"></div>
+      </section>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button id="navList" type="button" class="active">목록</button>
+    <button id="navAdd" type="button" class="plus">＋</button>
+    <button id="navSettings" type="button">설정</button>
+  </nav>
+
+  <div id="detailModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-sheet">
+      <button type="button" class="close-btn" data-close="detailModal">×</button>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <div id="completeConfirmModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-sheet small">
+      <h2>연습을 완료할까요?</h2>
+      <p class="modal-desc">완료 정보를 입력하면 완료된 연습으로 이동해요.</p>
+      <div class="button-row">
+        <button type="button" class="secondary" data-close="completeConfirmModal">취소</button>
+        <button id="openCompleteFormBtn" type="button" class="primary no-margin">완료하기</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="completeFormModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-sheet">
+      <button type="button" class="close-btn" data-close="completeFormModal">×</button>
+      <h2>연습 결과 기록</h2>
+
+      <label for="completeDate">완료일</label>
+      <input id="completeDate" type="date" />
+
+      <label for="completeMinutes">소요시간</label>
+      <input id="completeMinutes" type="number" min="1" max="999" inputmode="numeric" placeholder="분 단위" />
+
+      <label>만족도</label>
+      <div id="ratingStars" class="rating">
+        <button type="button" data-rating="1">★</button>
+        <button type="button" data-rating="2">★</button>
+        <button type="button" data-rating="3">★</button>
+        <button type="button" data-rating="4">★</button>
+        <button type="button" data-rating="5">★</button>
+      </div>
+
+      <label for="completeMethod">연습 방법</label>
+      <select id="completeMethod">
+        <option value="">선택 안 함</option>
+        <option value="부분 반복">부분 반복</option>
+        <option value="느린 템포">느린 템포</option>
+        <option value="메트로놈">메트로놈</option>
+        <option value="부점/리듬 변형">부점/리듬 변형</option>
+        <option value="보잉 연습">보잉 연습</option>
+        <option value="합주 복습">합주 복습</option>
+        <option value="기타">기타</option>
+      </select>
+
+      <label for="completeReview">연습 결과</label>
+      <textarea id="completeReview" maxlength="2000" placeholder="오늘 연습 결과를 기록해요."></textarea>
+
+      <label for="completeNextPlan">다음 연습 계획</label>
+      <textarea id="completeNextPlan" maxlength="2000" placeholder="다음에 이어서 할 내용을 적어두세요."></textarea>
+
+      <button id="saveCompleteBtn" type="button" class="primary">완료 정보 저장</button>
+    </div>
+  </div>
+
+  <div id="finalConfirmModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-sheet small">
+      <h2>완료 정보를 등록할까요?</h2>
+      <p class="modal-desc">등록하면 완료된 연습 목록으로 이동해요.</p>
+      <div class="button-row">
+        <button type="button" class="secondary" data-close="finalConfirmModal">취소</button>
+        <button id="finalCompleteBtn" type="button" class="primary no-margin">등록</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="deleteConfirmModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-sheet small">
+      <h2 id="deleteTitle">삭제할까요?</h2>
+      <p id="deleteDesc" class="modal-desc">삭제한 데이터는 복구할 수 없어요.</p>
+      <div class="button-row">
+        <button type="button" class="secondary" data-close="deleteConfirmModal">취소</button>
+        <button id="confirmDeleteBtn" type="button" class="danger no-margin">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
